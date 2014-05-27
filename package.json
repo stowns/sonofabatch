@@ -1,0 +1,25 @@
+{
+  "name": "sonofabatch",
+  "version": "0.0.1",
+  "description": "Creates a batch endpoint for your ExpressJS api",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stowns/sonofabatch.git"
+  },
+  "keywords": [
+    "batch",
+    "api",
+    "expressjs"
+  ],
+  "author": "Simon Townsend <stowns3@gmail.com> (http://github.com/stowns)",
+  "license": "BSD",
+  "bugs": {
+    "url": "https://github.com/stowns/sonofabatch/issues"
+  },
+  "dependencies": {
+    "request": "~2.36.0",
+    "async": "~0.9.0",
+    "lodash": "~2.4.1"
+  }
+}
