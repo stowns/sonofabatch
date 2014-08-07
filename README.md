@@ -59,5 +59,4 @@ By default the calls with execute on the server in parallel.  However, if the ca
 
 ### TODO
 - add tests
-- header support
 - more meaningful error messaging

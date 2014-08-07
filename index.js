@@ -19,11 +19,12 @@ SonOfABatch.prototype.call = function(req, res) {
   async.map(requests,
    function(r, mapCb) {
       var opts = {
-        url    : req.protocol + _this.hostAndPort + r.path,
-        method : r.method,
-        qs     : r.body,
-        body   : r.body,
-        json   : true
+        url     : req.protocol + _this.hostAndPort + r.path,
+        method  : r.method,
+        qs      : r.body,
+        body    : r.body,
+        headers : r.headers,
+        json    : true
       };
 
       var composedCb = function(callback) {
