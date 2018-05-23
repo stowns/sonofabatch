@@ -111,6 +111,12 @@ Providing a serviceUrl in one of 3 places
     ```
 
 
+### params
+- serviceUrl: should include protocol:hostname:port
+- mergeHeaders: will take the headers from the batch request and add them to the headers of each request defined in the payload
+- protocol: only useful when not passing serviceUrl. will set the protocol used when defaulting to 127.0.0.1
+- port: only useful when not passing serviceUrl. will set the port used when defaulting to 127.0.0.1
+
 ### TODO
 - add tests
 - more meaningful error messaging

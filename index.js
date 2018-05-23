@@ -31,10 +31,16 @@ class SonOfABatch {
           ? r.serviceUrl
           : globalServiceUrl || this.defaultServiceUrl;
 
+        let headers = r.headers;
+        if (this.opts.mergeHeaders) {
+          let headersToMerge = this.opts.mergeHeaders.split(',');
+          headers = Object.assign({}, _.pick(req.headers, headersToMerge), r.headers);
+        }
+
         let opts = {
           url     : `${serviceUrl}${r.path}`,
           method  : r.method,
-          headers : r.headers,
+          headers : headers,
           json    : true
         };
 
