@@ -1,35 +1,43 @@
 sonofabatch
 ===========
-Quickly add a batch endpoint to your ExpressJS app.
+Quickly add a batch endpoint to your ExpressJS app or provide a batch facade to an existing JSON REST service.
 
-###usage
+### usage
 
 Attach the batch endpoint.
 `````
-var express    = require('express'),
-    router     = express.Router(),
-    Batch      = require('sonofabatch'),
-    batch      = new Batch(8080);
+const express = require('express')
+const app = express();
+const router = express.Router();
+const SonOfABatch = require('sonofabatch');
+const batch = new SonOfABatch();
+const bodyParser = require('body-parser');
 
 router.post('/batch', batch.call); // make sure you use .post()
+
+app.use(bodyParser.json());
+app.use('/', router);
+
+app.listen(3000, () => console.log(`Batch-O-Matic is listening on port 3000!`));
 ``````
 
 All other endpoints can now be called via the /batch endpoint by posting to it with a body such as the following
 ``````
-{ requests : 
+{ 
+  requests : 
     [
       {
         method : "GET",
-        body : { hello : "world" },
-        path :  "/accounts"
+        path :  "/accounts",
+        query : { hello : "world" }
       },
       {
         method : "POST",
-        body   : { name : "Important Account" },
-        path   : "/accounts"
+        path   : "/accounts",
+        body   : { name : "Important Account" }
       }
     ]
-};
+}
 ``````
 You should always expect the response to return the results in the order which they were requested.
 
@@ -45,17 +53,63 @@ By default the calls with execute on the server in parallel.  However, if the ca
   [
     {
       method : "GET",
-      body : { hello : "world" },
-      path :  "/accounts"
+      path :  "/accounts",
+      query : { hello : "world" },
     },
     {
       method : "POST",
-      body   : { name : "Important Account" },
-      path   : "/accounts"
+      path   : "/accounts",
+      body   : { name : "Important Account" }
     }
   ]
 };
 ``````
+
+### as a batch proxy
+
+sonofabatch can be used in-tandem with an express server as a batch middleware service to existing JSON REST API services.  
+Providing a serviceUrl in one of 3 places
+  1. on instantiation of the middleware `new SonOfABatch({serviceUrl: 'http://myserviceurl:8080'});`
+  2. in the root of the request made to the /batch endpoint. This applies to all calls defined in the request and also overrides 'serviceUrl' passed as a javascript option to `new SonOfABatch();`
+    ```
+    { 
+      serviceUrl: "http://myserviceurl:8080"
+      requests : 
+        [
+          {
+            method : "GET",
+            path :  "/accounts",
+            query : { hello : "world" }
+          },
+          {
+            method : "POST",
+            path   : "/accounts",
+            body   : { name : "Important Account" }
+          }
+        ]
+    }
+    ```
+  3. in each individual request (overrides `serviceUrl` passed via methods 1 and 2
+    ```
+    { 
+      requests : 
+        [
+          {
+            serviceUrl: "http://myserviceurl1",
+            method : "GET",
+            path :  "/accounts",
+            query : { hello : "world" }
+          },
+          {
+            serviceUrl: "http://myserviceurl2",
+            method : "POST",
+            path   : "/accounts",
+            body   : { name : "Important Account" }
+          }
+        ]
+    }
+    ```
+
 
 ### TODO
 - add tests

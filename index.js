@@ -1,49 +1,73 @@
-var async   = require('async'),
-    request = require('request'),
-    qs      = require('querystring'),
-    _       = require('lodash');
+const async = require('async');
+const request = require('request');
+const _ = require('lodash');
 
+class SonOfABatch {
+  
+  constructor(opts) {
+    this.opts = opts || {};
 
-function SonOfABatch(port) {
-  this.hostAndPort = '://127.0.0.1:' + port;
+    // if the middleware is passed an explict host and port to default to, set it up.
+    this.defaultServiceUrl = this.opts.serviceUrl;
+    if (!this.defaultServiceUrl) {
+      this.defaultServiceUrl = `${this.opts.protocol||'http'}://127.0.0.1`;
+      if (this.opts.port) {
+        this.defaultServiceUrl += `:${this.opts.port}`;
+      }
+    }
 
-  _.bindAll(this);
-  return this;
-};
+    _.bindAll(this, 'call');
+  }
 
-SonOfABatch.prototype.call = function(req, res) {
-  var _this     = this;
-      execution = req.body.execution || 'parallel',
-      requests  = req.body.requests;
+  call(req, res) {
+    let execution = req.body.execution || 'parallel';
+    let requests  = req.body.requests;
+    // the serviceUrl can be passed at the top-level of the request and apply to all calls.
+    let globalServiceUrl = req.body.serviceUrl;
 
-  async.map(requests,
-   function(r, mapCb) {
-      var opts = {
-        url     : req.protocol + _this.hostAndPort + r.path,
-        method  : r.method,
-        qs      : r.body,
-        body    : r.body,
-        headers : r.headers,
-        json    : true
-      };
+    async.map(requests,
+      (r, mapCb) => {
+        let serviceUrl = r.serviceUrl
+          ? r.serviceUrl
+          : globalServiceUrl || this.defaultServiceUrl;
 
-      var composedCb = function(callback) {
-        request(opts, function(err, response, body) {
-          callback(err, body);
-        });
-      };
-      
-      mapCb(null, composedCb);
-   },
-   function(err, calls){
-    if (err) return res.send(500);
+        let opts = {
+          url     : `${serviceUrl}${r.path}`,
+          method  : r.method,
+          headers : r.headers,
+          json    : true
+        };
 
-    async[execution](calls, function(err, results) {
-      if (err) return res.send(500);
+        if (r.query) {
+          opts.qs = r.query;
+        }
+        if (r.body) {
+          opts.body = r.body;
+        }
 
-      res.send(results);
-    })
-  });
-};
+        if (process.env.DEBUG) {
+          console.log(JSON.stringify(opts,null,'\t'));
+        }
 
-exports = module.exports = SonOfABatch;
+        let composedCb = (callback) => {
+          request(opts, (err, response, body) => {
+            callback(err, body);
+          });
+        };
+        
+        mapCb(null, composedCb);
+    },
+    (err, calls) => {
+      if (err) return res.sendStatus(500);
+
+      async[execution](calls, (err, results) => {
+        if (err) return res.sendStatus(500);
+
+        res.send(results);
+      })
+    });
+  }
+
+}
+
+module.exports = SonOfABatch;
