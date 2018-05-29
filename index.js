@@ -20,6 +20,10 @@ class SonOfABatch {
   }
 
   call(req, res) {
+    if (process.env.DEBUG) {
+      console.log('sonofabatch: req.headers received');
+      console.log(JSON.stringify(req.headers,null,'\t'));
+    }
     let execution = req.body.execution || 'parallel';
     let requests  = req.body.requests;
     // the serviceUrl can be passed at the top-level of the request and apply to all calls.
@@ -41,7 +45,8 @@ class SonOfABatch {
           url     : `${serviceUrl}${r.path}`,
           method  : r.method,
           headers : headers,
-          json    : true
+          json    : true,
+          gzip    : this.isGzip(headers)
         };
 
         if (r.query) {
@@ -52,6 +57,7 @@ class SonOfABatch {
         }
 
         if (process.env.DEBUG) {
+          console.log('sonofabatch: request options being passed');
           console.log(JSON.stringify(opts,null,'\t'));
         }
 
@@ -72,6 +78,16 @@ class SonOfABatch {
         res.send(results);
       })
     });
+  }
+
+  isGzip(headers) {
+    if (!headers) return false;
+
+    let acceptEncoding = headers['accept-encoding'];
+    if (!acceptEncoding) { acceptEncoding = headers['Accept-Encoding']; }
+    if (!acceptEncoding) { return false; }
+
+    return acceptEncoding.includes('gzip');
   }
 
 }
