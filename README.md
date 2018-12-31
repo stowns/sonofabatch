@@ -1,6 +1,6 @@
 sonofabatch
 ===========
-Quickly add a batch endpoint to your ExpressJS app or provide a batch facade to an existing JSON REST service.
+Instantly add a batch endpoint to your ExpressJS API
 
 ### usage
 
