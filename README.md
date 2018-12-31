@@ -68,7 +68,7 @@ By default the calls with execute on the server in parallel.  However, if the ca
 ### as a batch proxy
 
 sonofabatch can be used as batch middleware to proxy calls to existing JSON REST API services.  Below is a diagram of the use-case:
-![sonofabatch proxy example]()
+![sonofabatch proxy example](https://github.com/stowns/sonofabatch/blob/master/docs/sonofabatch.jpg?raw=true)
 
 To configure sonofabatch as a batch proxy simply provide a serviceUrl in one of 3 places
   1. on instantiation of the middleware `new SonOfABatch({serviceUrl: 'http://myserviceurl:8080'});`
